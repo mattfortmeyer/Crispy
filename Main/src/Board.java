@@ -13,6 +13,8 @@ public class Board {
     public double utilityScore;
     private ArrayList<Board> children;
     public boolean whiteTurn;
+    private int moveX;
+    private int moveY;
     /**
         its the zip zop zoopitybop board
         'x'  = black
@@ -88,7 +90,10 @@ public class Board {
                     for (int k = 0; k < 15; k++) {
                         newSpaces[k] = Arrays.copyOf(this.spaces[k], 15);
                     }
+
                     Board newBoard = new Board(newSpaces, !this.whiteTurn);
+                    newBoard.setMoveX(j);
+                    newBoard.setMoveY(i);
                     double h = newBoard.heuristic();
                     if(whiteTurn){
                         newBoard.spaces[i][j] = 'O';
@@ -96,7 +101,6 @@ public class Board {
                         newBoard.spaces[i][j] = 'X';
                     }
                     this.children.add(newBoard);
-                    newBoard.printBoard();
                     numChildren++;
                 }
             }
@@ -119,5 +123,21 @@ public class Board {
             System.out.print("\n");
         }
         System.out.print(this.heuristicScore + "\n");
+    }
+
+    public int getMoveX(){
+        return this.moveX;
+    }
+
+    public int getMoveY(){
+        return this.moveY;
+    }
+
+    public void setMoveX(int x){
+        this.moveX = x;
+    }
+
+    public void setMoveY(int y){
+        this.moveY = y;
     }
 }
