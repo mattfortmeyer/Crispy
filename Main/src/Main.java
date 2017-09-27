@@ -20,8 +20,9 @@ public class Main {
     static boolean yourTurn = false;
     static boolean over = false;
     static boolean areWhite = false;
+    static boolean turn0 = true;
 
-    private static long CLOSE_DELAY = 9000;
+    private static long CLOSE_DELAY = 5000;
 
     public static void main(String[] args) {
         Board currentBoard = new Board(new char[15][15], true);
@@ -39,22 +40,28 @@ public class Main {
                 File f = new File("Crispy.go");
                 yourTurn = f.exists();
 
+                File endGame = new File("end_game");
                 //if end_game exists, the game ends
-                File endGame = new File("end_game.txt");
                 if (endGame.exists()) {
                     return;
                 }
 
+                try {
+                    sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                File move = new File("move_file");
                 //if move file exists then try to read it in
-                File move = new File("move_file.txt");
-                if(move.exists()) {
+                if(!(move.length() == 0)) {
                     try {
-                        BufferedReader br = new BufferedReader(new FileReader("move_file.txt"));
+                        BufferedReader br = new BufferedReader(new FileReader("move_file"));
                         String line = br.readLine();
                         String[] curLine = line.split("\\s");
-                        if(areWhite && (!curLine[0].equals("Crispy"))){
+                        if (areWhite && (!curLine[0].equals("Crispy"))) {
                             currentState.spaces[Integer.parseInt(curLine[2]) - 1][fromLetter(curLine[1].charAt(0)) - 1] = 'X';
-                        } else if(!areWhite && (!curLine[0].equals("Crispy"))){
+                        } else if (!areWhite && (!curLine[0].equals("Crispy"))) {
                             currentState.spaces[Integer.parseInt(curLine[2]) - 1][fromLetter(curLine[1].charAt(0)) - 1] = 'O';
                         }
                     } catch (IOException e) {
@@ -78,9 +85,11 @@ public class Main {
             }, CLOSE_DELAY);
 
             //check the move file and set who you are
-            File move = new File("move_file.txt");
-            areWhite = !move.exists();
-
+            File move = new File("move_file");
+            if(turn0) {
+                areWhite = (move.length() == 0);
+                turn0 = false;
+            }
             if(areWhite){
                 System.out.println("I'm white!");
             } else{
@@ -159,14 +168,6 @@ public class Main {
                     System.out.println("New Move:" + currentMax + " " + nextMovex + " " + nextMovey);
                 }
             }
-
-            System.out.println("turn end");
-            //we're done with the turn here
-            try {
-                sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             //do file IO and add new turns to our current model
             //initialize timer
             //start expanding like crazy
@@ -185,9 +186,23 @@ public class Main {
      * @param y row of move to write
      */
     public static void makeMove(int x, int y){
+        try (PrintWriter pw = new PrintWriter("move_file")) {
+            pw.write("Soggy " + toLetter(nextMovex) + " " + nextMovey);
+            pw.close();
+            //BufferedWriter bw = new BufferedWriter(new FileWriter("move_file", false);
+            //bw.write("Soggy " + toLetter(nextMovex) + " " + nextMovey);
+            //bw.close();
+
+            System.out.println("Done");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        /*
         try {
-            File moveFile = new File("move_file.txt");
+            File moveFile = new File("move_file");
             if(moveFile.exists()) {
+
                 FileWriter moveWriter = new FileWriter(moveFile, false);
                 moveWriter.write("Crispy " + toLetter(nextMovex) + " " + nextMovey);
                 moveWriter.close();
@@ -197,7 +212,7 @@ public class Main {
         } catch(IOException e){
             System.out.println("I/O exception");
             e.printStackTrace();
-        }
+        }*/
     }
 
     /**
