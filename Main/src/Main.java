@@ -29,19 +29,23 @@ public class Main {
         //currentBoard.spaces[10][3] = 'O';
         currentState = currentBoard;
 
+        //main loop
         while (true) {
             //if(over) return;
             //wait until it's your turn
             while (!yourTurn) {
                 //if(over) return;
+                //its your turn if go file exists
                 File f = new File("Crispy.go");
                 yourTurn = f.exists();
 
+                //if end_game exists, the game ends
                 File endGame = new File("end_game.txt");
                 if (endGame.exists()) {
                     return;
                 }
 
+                //if move file exists then try to read it in
                 File move = new File("move_file.txt");
                 if(move.exists()) {
                     try {
@@ -60,17 +64,20 @@ public class Main {
                 }
             }
 
+            //start the timer, its your turn
             Timer timer = new Timer(); //set timer
             timer.schedule(new TimerTask() {
                 public void run() {
+                    //schedule move to file, flip flags, start waiting again after .9s
                     makeMove(nextMovex, nextMovey);  //write move to file
-                    System.out.println("hi");
+                    System.out.println("timeout");
                     over = true;
                     yourTurn = false;
                     timer.cancel();
                 }
             }, CLOSE_DELAY);
 
+            //check the move file and set who you are
             File move = new File("move_file.txt");
             areWhite = !move.exists();
 
@@ -83,27 +90,49 @@ public class Main {
             over = false;
             //if(over) return;
 
+            //generate all possible moves
             ArrayList<Board> children = currentBoard.addChildren();
+
+            //sort those children using the utility function
             Collections.sort(children, Comparator.comparing(s -> s.utility()));
+
             if(areWhite) Collections.reverse(children);
+            //?
+
+            //currentBoard is always root of the tree
             currentBoard = children.get(0);
             //currentBoard.printBoard();
+
+            //indexing fix (?) should probably be moved to getMoveX/Y
             nextMovex = currentBoard.getMoveX() + 1;
             nextMovey = currentBoard.getMoveY() + 1;
+
+            //keep track of current max for minMax
             currentMax = currentBoard.utilityScore;
             currentState = currentBoard;
+
+            //
             System.out.println("New Move:" + currentMax + " " + nextMovex + " " + nextMovey);
             movesMade++;
 
+            //
             for(Board b : children){
                 if (over) break;
+
+                //expand a child
                 ArrayList<Board> twoChildren = b.addChildren();
+
                 Collections.sort(twoChildren, Comparator.comparing(s -> s.utility()));
+
+                //since utility is black biased, we need to flip it. Potential fix: utility function taking player
                 if(!areWhite) Collections.reverse(twoChildren);
+
+                //current board becomes the most promising of the children
                 currentBoard = twoChildren.get(0);
                 //currentBoard.printBoard();
                 movesMade++;
 
+                //expand to a third child
                 int localMoveX = 0;
                 int localMoveY = 0;
                 double localMin = 0;
@@ -126,10 +155,13 @@ public class Main {
                     nextMovey = localMoveY;
                     currentMax = localMin;
                     currentState = b;
+                    //make a new move if we find a better one
                     System.out.println("New Move:" + currentMax + " " + nextMovex + " " + nextMovey);
                 }
             }
 
+            System.out.println("turn end");
+            //we're done with the turn here
             try {
                 sleep(1000);
             } catch (InterruptedException e) {
@@ -146,26 +178,12 @@ public class Main {
         }
     }
 
-    /**
-     * Order the tree using the heuristic
-     * @param tree
-     * @return an ordered tree
-     */
-    TreeMap minMax(TreeMap tree) {
-        //scores children using utility function and picks a new current move
-        //expands children of current move, then recursively calls
-        return tree;
-    }
 
-    //TODO: Expand?!?
     /**
-     * Expand Wong
+     * Writes a move to the move file
+     * @param x column of move to write
+     * @param y row of move to write
      */
-    public Board expand(Board board) {
-        return null;
-        //adds a bunch of new nodes, runs heuristic on each, and then puts in sorted order
-    }
-
     public static void makeMove(int x, int y){
         try {
             File moveFile = new File("move_file.txt");
@@ -182,6 +200,12 @@ public class Main {
         }
     }
 
+    /**
+     * Converts x to letters, as is the convention for file writing
+     *
+     * @param x row to be letterized
+     * @return letter that x represents
+     */
     public static char toLetter(int x){
         if(x == 1){
             return 'A';
@@ -217,6 +241,12 @@ public class Main {
         return 'Z';
     }
 
+    /**
+     * Read letter into row, for reading from move file
+     *
+     * @param x letter to convert to row
+     * @return
+     */
     public static char fromLetter(int x){
         if(x == 'A'){
             return 1;

@@ -9,24 +9,25 @@ import java.util.Random;
  * @author Matthew Matthew Craig
  */
 public class Board {
+
     public double heuristicScore;
     public double utilityScore;
-    private ArrayList<Board> children;
     public boolean whiteTurn;
-    private int moveX;
-    private int moveY;
-
-    public enum Direction {N_S, W_E, NW_SE, NE_SW}
     /**
-     * its the zip zop zoopitybop board
+     * board variable
      * 'x'  = black
      * '0' = white
      */
     public char[][] spaces = new char[15][15];
+    private ArrayList<Board> children;
+    private int moveX;
+    private int moveY;
 
 
     /**
-     *
+     * Char constructor
+     * @param spaces the board to create
+     * @param turn whose turn it is
      */
     public Board(char[][] spaces, Boolean turn) {
         this.spaces = spaces;
@@ -35,7 +36,7 @@ public class Board {
     }
 
     /**
-     *
+     * Empty constructor, just in case
      */
     public Board() {
         this.spaces = new char[15][15];
@@ -70,21 +71,6 @@ public class Board {
         return rand;
     }
 
-    /**
-     *
-     */
-    public Board move(char player, int x, int y) {
-        if (x < 0 || y < 0 || y > 15 || x > 15) {
-            //dont do this please
-            throw new RuntimeException("Bad move place. x:" + x + ", y:" + y);
-        } else {
-            //initialize variables and other constructor stuff
-            //givin birth
-            Board board = new Board(spaces, !this.whiteTurn);
-            board.spaces[x][y] = player;
-            return board;
-        }
-    }
 
     /**
      * Adds all possible children to the tree
@@ -119,55 +105,63 @@ public class Board {
         return this.children;
     }
 
-
+    /**
+     * Prints the board into the console
+     */
     public void printBoard() {
         System.out.println("   A  B  C  D  E  F  G  H  I  J  K  L  M  N  O");
+
+        //Print digits <10 with a leading space
         for (int i = 0; i < 9; i++) {
             System.out.print(" " + (i + 1));
-            for (int j = 0; j < 15; j++) {
-                if (this.spaces[i][j] == 'X') {
-                    System.out.print("[X]");
-                } else if (this.spaces[i][j] == 'O') {
-                    System.out.print("[O]");
-                } else {
-                    System.out.print("[ ]");
-                }
-            }
+            printRow(this.spaces[i]);
             System.out.print("\n");
         }
 
         for (int i = 9; i < 15; i++) {
             System.out.print(i + 1);
-            for (int j = 0; j < 15; j++) {
-                if (this.spaces[i][j] == 'X') {
-                    System.out.print("[X]");
-                } else if (this.spaces[i][j] == 'O') {
-                    System.out.print("[O]");
-                } else {
-                    System.out.print("[ ]");
-                }
-            }
+            printRow(this.spaces[i]);
             System.out.print("\n");
         }
         System.out.print(this.utility() + "\n");
     }
 
-    public int getMoveX() {
-        return this.moveX;
+    public void printRow(char[] space) {
+        for (int j = 0; j < 15; j++) {
+            if (space[j] == 'X') {
+                System.out.print("[X]");
+            } else if (space[j] == 'O') {
+                System.out.print("[O]");
+            } else {
+                System.out.print("[ ]");
+            }
+        }
     }
 
-    public int getMoveY() {
-        return this.moveY;
+
+    public int getMoveX() {
+        return this.moveX;
     }
 
     public void setMoveX(int x) {
         this.moveX = x;
     }
 
+    public int getMoveY() {
+        return this.moveY;
+    }
+
     public void setMoveY(int y) {
         this.moveY = y;
     }
 
+    /**
+     * Calculate a score for a player based on chain lengths
+     *
+     * @param spaces board to be assesed
+     * @param player person who the assessment is for
+     * @return double score based on chain lengths
+     */
     public double scorePlayer(char[][] spaces, char player){
         double score = 0;
         for (int i = 0; i < 15; i++) {
