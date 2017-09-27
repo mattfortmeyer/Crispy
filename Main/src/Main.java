@@ -5,7 +5,7 @@ import static java.lang.Thread.sleep;
 
 
 /**
- *  Main class to run Crispy, an AI for playing GoMoku
+ *  Main class to run Soggy, an AI for playing GoMoku
  *
  * @author Matthew, Matthew, Craig
  *
@@ -32,13 +32,17 @@ public class Main {
 
         //main loop
         while (true) {
+            System.out.println(fromLetter('B'));
             //if(over) return;
             //wait until it's your turn
             while (!yourTurn) {
                 //if(over) return;
                 //its your turn if go file exists
-                File f = new File("Crispy.go");
+                try{sleep(500);}catch(Exception e){}
+                String filePath = "Soggy.go";
+                File f = new File(filePath);
                 yourTurn = f.exists();
+                System.out.println(filePath);
 
                 File endGame = new File("end_game");
                 //if end_game exists, the game ends
@@ -55,17 +59,30 @@ public class Main {
                 File move = new File("move_file");
                 //if move file exists then try to read it in
                 if(!(move.length() == 0)) {
+                    String[] curLine = new String[20];
                     try {
                         BufferedReader br = new BufferedReader(new FileReader("move_file"));
                         String line = br.readLine();
-                        String[] curLine = line.split("\\s");
-                        if (areWhite && (!curLine[0].equals("Crispy"))) {
-                            currentState.spaces[Integer.parseInt(curLine[2]) - 1][fromLetter(curLine[1].charAt(0)) - 1] = 'X';
-                        } else if (!areWhite && (!curLine[0].equals("Crispy"))) {
-                            currentState.spaces[Integer.parseInt(curLine[2]) - 1][fromLetter(curLine[1].charAt(0)) - 1] = 'O';
+                        curLine = line.split("\\s");
+
+                        if (areWhite && (!curLine[0].equals("Soggy"))) {
+                            if(!curLine[0].isEmpty()){
+                                currentState.spaces[Integer.parseInt(curLine[2]) - 1][fromLetter(curLine[1].charAt(0)) - 1] = 'X';
+                            } else {
+                                System.out.println("Move file empty?:"+curLine[0]+".");
+                            }
+                        } else if (!areWhite && (!curLine[0].equals("Soggy"))) {
+                            if(!curLine[0].isEmpty()){
+                                currentState.spaces[Integer.parseInt(curLine[2]) - 1][fromLetter(curLine[1].charAt(0)) - 1] = 'O';
+                            } else {
+                                System.out.println("Move file empty?:"+curLine[0]+".");
+                            }
                         }
-                    } catch (IOException e) {
+
+                    } catch (Exception e) {
                         System.out.println("I/O exception");
+                        System.out.println("0:"+curLine[0]+", 1:"+curLine[1]+", 2:"+curLine[2]);
+                        System.out.println(fromLetter(curLine[1].charAt(0)) - 1);
                         e.printStackTrace();
                     }
                 }
@@ -187,8 +204,9 @@ public class Main {
      */
     public static void makeMove(int x, int y){
         try (PrintWriter pw = new PrintWriter("move_file")) {
-            pw.write("Soggy " + toLetter(nextMovex) + " " + nextMovey);
+            pw.println("Soggy " + toLetter(nextMovex) + " " + nextMovey);
             pw.close();
+            System.out.println("Soggy " + toLetter(nextMovex) + " " + nextMovey);
             //BufferedWriter bw = new BufferedWriter(new FileWriter("move_file", false);
             //bw.write("Soggy " + toLetter(nextMovex) + " " + nextMovey);
             //bw.close();
@@ -204,7 +222,7 @@ public class Main {
             if(moveFile.exists()) {
 
                 FileWriter moveWriter = new FileWriter(moveFile, false);
-                moveWriter.write("Crispy " + toLetter(nextMovex) + " " + nextMovey);
+                moveWriter.write("Soggy " + toLetter(nextMovex) + " " + nextMovey);
                 moveWriter.close();
             }
             yourTurn = false;
@@ -262,39 +280,39 @@ public class Main {
      * @param x letter to convert to row
      * @return
      */
-    public static char fromLetter(int x){
-        if(x == 'A'){
+    public static int fromLetter(char x){
+        if(x == 'a'||x=='A'){
             return 1;
-        } else if(x == 'B'){
+        } else if(x == 'b'||x=='B'){
             return 2;
-        } else if(x == 'C'){
+        } else if(x == 'c'||x=='C'){
             return 3;
-        } else if(x == 'D'){
+        } else if(x == 'd'||x=='D'){
             return 4;
-        } else if(x == 'E'){
+        } else if(x == 'e'||x=='E'){
             return 5;
-        } else if(x == 'F'){
+        } else if(x == 'f'||x=='F'){
             return 6;
-        } else if(x == 'G'){
+        } else if(x == 'g'||x=='G'){
             return 7;
-        } else if(x == 'H'){
+        } else if(x == 'h'||x=='H'){
             return 8;
-        } else if(x == 'I'){
+        } else if(x == 'i'||x=='I'){
             return 9;
-        } else if(x == 'J'){
+        } else if(x == 'j'||x=='J'){
             return 10;
-        } else if(x == 'K'){
+        } else if(x == 'k'||x=='K'){
             return 11;
-        } else if(x == 'L'){
+        } else if(x == 'l'||x=='L'){
             return 12;
-        } else if(x == 'M'){
+        } else if(x == 'm'||x=='M'){
             return 13;
-        } else if(x == 'N'){
+        } else if(x == 'n'||x=='N'){
             return 14;
-        } else if(x == 'O'){
+        } else if(x == 'o'||x=='O'){
             return 15;
         }
-        return 'Z';
+        return 1;
     }
 
 }
