@@ -5,7 +5,7 @@ import static java.lang.Thread.sleep;
 
 
 /**
- *  Main class to run Soggy, an AI for playing GoMoku
+ *  Main class to run Crispy, an AI for playing GoMoku
  *
  * @author Matthew, Matthew, Craig
  *
@@ -39,7 +39,7 @@ public class Main {
                 //if(over) return;
                 //its your turn if go file exists
                 try{sleep(500);}catch(Exception e){}
-                String filePath = "Soggy.go";
+                String filePath = "Crispy.go";
                 File f = new File(filePath);
                 yourTurn = f.exists();
                 System.out.println(filePath);
@@ -63,15 +63,16 @@ public class Main {
                     try {
                         BufferedReader br = new BufferedReader(new FileReader("move_file"));
                         String line = br.readLine();
+                        br.close();
                         curLine = line.split("\\s");
 
-                        if (areWhite && (!curLine[0].equals("Soggy"))) {
+                        if (areWhite && (!curLine[0].equals("Crispy"))) {
                             if(!curLine[0].isEmpty()){
                                 currentState.spaces[Integer.parseInt(curLine[2]) - 1][fromLetter(curLine[1].charAt(0)) - 1] = 'X';
                             } else {
                                 System.out.println("Move file empty?:"+curLine[0]+".");
                             }
-                        } else if (!areWhite && (!curLine[0].equals("Soggy"))) {
+                        } else if (!areWhite && (!curLine[0].equals("Crispy"))) {
                             if(!curLine[0].isEmpty()){
                                 currentState.spaces[Integer.parseInt(curLine[2]) - 1][fromLetter(curLine[1].charAt(0)) - 1] = 'O';
                             } else {
@@ -204,11 +205,11 @@ public class Main {
      */
     public static void makeMove(int x, int y){
         try (PrintWriter pw = new PrintWriter("move_file")) {
-            pw.println("Soggy " + toLetter(nextMovex) + " " + nextMovey);
+            pw.println("Crispy " + toLetter(nextMovex) + " " + nextMovey);
             pw.close();
-            System.out.println("Soggy " + toLetter(nextMovex) + " " + nextMovey);
+            System.out.println("Crispy " + toLetter(nextMovex) + " " + nextMovey);
             //BufferedWriter bw = new BufferedWriter(new FileWriter("move_file", false);
-            //bw.write("Soggy " + toLetter(nextMovex) + " " + nextMovey);
+            //bw.write("Crispy " + toLetter(nextMovex) + " " + nextMovey);
             //bw.close();
 
             System.out.println("Done");
@@ -222,7 +223,7 @@ public class Main {
             if(moveFile.exists()) {
 
                 FileWriter moveWriter = new FileWriter(moveFile, false);
-                moveWriter.write("Soggy " + toLetter(nextMovex) + " " + nextMovey);
+                moveWriter.write("Crispy " + toLetter(nextMovex) + " " + nextMovey);
                 moveWriter.close();
             }
             yourTurn = false;
