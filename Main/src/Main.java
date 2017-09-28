@@ -26,17 +26,12 @@ public class Main {
 
     public static void main(String[] args) {
         Board currentBoard = new Board(new char[15][15], true);
-        //currentBoard.spaces[10][6] = 'O';
-        //currentBoard.spaces[10][3] = 'O';
         currentState = currentBoard;
 
         //main loop
         while (true) {
-            System.out.println(fromLetter('B'));
-            //if(over) return;
             //wait until it's your turn
             while (!yourTurn) {
-                //if(over) return;
                 //its your turn if go file exists
                 try{sleep(500);}catch(Exception e){}
                 String filePath = "Crispy.go";
@@ -48,12 +43,6 @@ public class Main {
                 //if end_game exists, the game ends
                 if (endGame.exists()) {
                     return;
-                }
-
-                try {
-                    sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
 
                 File move = new File("move_file");
@@ -118,13 +107,11 @@ public class Main {
             //if(over) return;
 
             //generate all possible moves
-            ArrayList<Board> children = currentBoard.addChildren();
+            ArrayList<Board> children = currentState.addChildren();
 
             //sort those children using the utility function
-            Collections.sort(children, Comparator.comparing(s -> s.utility()));
-
-            if(areWhite) Collections.reverse(children);
-            //?
+            Collections.sort(children, Comparator.comparing(s -> s.heuristic()));
+            Collections.reverse(children);
 
             //currentBoard is always root of the tree
             currentBoard = children.get(0);
@@ -136,7 +123,7 @@ public class Main {
 
             //keep track of current max for minMax
             currentMax = currentBoard.utilityScore;
-            currentState = currentBoard;
+            //currentState = currentBoard;
 
             //
             System.out.println("New Move:" + currentMax + " " + nextMovex + " " + nextMovey);
@@ -149,10 +136,10 @@ public class Main {
                 //expand a child
                 ArrayList<Board> twoChildren = b.addChildren();
 
-                Collections.sort(twoChildren, Comparator.comparing(s -> s.utility()));
+                Collections.sort(twoChildren, Comparator.comparing(s -> s.heuristic()));
 
                 //since utility is black biased, we need to flip it. Potential fix: utility function taking player
-                if(!areWhite) Collections.reverse(twoChildren);
+                Collections.reverse(twoChildren);
 
                 //current board becomes the most promising of the children
                 currentBoard = twoChildren.get(0);
@@ -166,8 +153,9 @@ public class Main {
                 for(Board c : twoChildren){
                     if (over) break;
                     ArrayList<Board> threeChildren = c.addChildren();
-                    Collections.sort(threeChildren, Comparator.comparing(s -> s.utility()));
-                    if(areWhite) Collections.reverse(threeChildren);
+                    Collections.sort(threeChildren, Comparator.comparing(s -> s.heuristic()));
+                    Collections.reverse(threeChildren);
+
                     currentBoard = threeChildren.get(0);
                     //currentBoard.printBoard();
                     if((c.equals(twoChildren.get(0))) || currentBoard.utilityScore < localMin){
@@ -181,7 +169,7 @@ public class Main {
                     nextMovex = localMoveX;
                     nextMovey = localMoveY;
                     currentMax = localMin;
-                    currentState = b;
+                    //currentState = b;
                     //make a new move if we find a better one
                     System.out.println("New Move:" + currentMax + " " + nextMovex + " " + nextMovey);
                 }
@@ -204,15 +192,18 @@ public class Main {
      * @param y row of move to write
      */
     public static void makeMove(int x, int y){
+        String moveString = "Crispy " + toLetter(nextMovex) + " " + nextMovey;
         try (PrintWriter pw = new PrintWriter("move_file")) {
-            pw.println("Crispy " + toLetter(nextMovex) + " " + nextMovey);
+            pw.print(moveString);
             pw.close();
-            System.out.println("Crispy " + toLetter(nextMovex) + " " + nextMovey);
+            System.out.println("Move made: " + moveString);
             //BufferedWriter bw = new BufferedWriter(new FileWriter("move_file", false);
             //bw.write("Crispy " + toLetter(nextMovex) + " " + nextMovey);
             //bw.close();
 
-            System.out.println("Done");
+            if(areWhite) currentState.spaces[y - 1][x - 1] = 'O';
+            if(!areWhite) currentState.spaces[y - 1][x -1] = 'X';
+            currentState.printBoard();
 
         } catch (IOException e) {
             e.printStackTrace();

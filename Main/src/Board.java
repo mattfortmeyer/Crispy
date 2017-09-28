@@ -53,6 +53,7 @@ public class Board {
         for (int k = 0; k < 15; k++) {
             newSpaces[k] = Arrays.copyOf(this.spaces[k], 15);
         }
+
         double whiteScore = this.scorePlayer(newSpaces, 'O');
         double blackScore = this.scorePlayer(newSpaces, 'X');
         this.utilityScore = whiteScore - blackScore;
@@ -65,10 +66,19 @@ public class Board {
      * @return float representing its evaluation priority
      */
     double heuristic() {
-        Random r = new Random();
-        double rand = 100 * r.nextDouble();
-        this.heuristicScore = rand;
-        return rand;
+        double numTouching = 0;
+
+        if((this.getMoveY() > 0 && this.getMoveY() < 14) && (this.getMoveX() > 0 && this.getMoveX() < 14)){
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if (this.spaces[this.getMoveY() - 1 + i][this.getMoveX() - 1 + j] == 'X' ||
+                            this.spaces[this.getMoveY() - 1 + i][this.getMoveX() - 1 + j] == 'O') {
+                        numTouching++;
+                    }
+                }
+            }
+        }
+        return numTouching;
     }
 
 
@@ -164,15 +174,177 @@ public class Board {
      */
     public double scorePlayer(char[][] spaces, char player){
         double score = 0;
+
+        char[][] newSpaces = new char[15][15];
+        for (int k = 0; k < 15; k++) {
+            newSpaces[k] = Arrays.copyOf(spaces[k], 15);
+        }
+
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 15; j++) {
-                if(spaces[i][j] == player){
+                if(newSpaces[i][j] == player){
                     int chainLength = 1;
-                    spaces[i][j] = ' ';
+                    newSpaces[i][j] = ' ';
                     for(int m = j; m < 14; m++){
-                        if(spaces[i][m + 1] == player){
+                        if(newSpaces[i][m + 1] == player){
                             chainLength++;
-                            spaces[i][m + 1] = ' ';
+                            newSpaces[i][m + 1] = ' ';
+                        } else{
+                            break;
+                        }
+                    }
+                    if(chainLength == 2){
+                        score += 2;
+                    } else  if(chainLength == 3){
+                        score += 5;
+                    } else  if(chainLength == 4){
+                        score += 20;
+                    } else  if(chainLength == 5){
+                        score += 5000;
+                    }
+                }
+            }
+        }
+
+        newSpaces = new char[15][15];
+        for (int k = 0; k < 15; k++) {
+            newSpaces[k] = Arrays.copyOf(spaces[k], 15);
+        }
+
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j < 15; j++) {
+                if(newSpaces[i][j] == player){
+                    int chainLength = 1;
+                    newSpaces[i][j] = ' ';
+                    for(int m = i; m < 14; m++){
+                        if(newSpaces[m + 1][j] == player){
+                            chainLength++;
+                            newSpaces[m + 1][j] = ' ';
+                        } else{
+                            break;
+                        }
+                    }
+                    if(chainLength == 2){
+                        score += 2;
+                    } else  if(chainLength == 3){
+                        score += 5;
+                    } else  if(chainLength == 4){
+                        score += 20;
+                    } else  if(chainLength == 5){
+                        score += 5000;
+                    }
+                }
+            }
+        }
+
+        newSpaces = new char[15][15];
+        for (int k = 0; k < 15; k++) {
+            newSpaces[k] = Arrays.copyOf(spaces[k], 15);
+        }
+
+        //top half
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j <= i; j++) {
+                int k = i - j;
+                if(newSpaces[k][j] == player){
+                    int chainLength = 1;
+                    newSpaces[k][j] = ' ';
+                    for(int m = j; m < i; m++){
+                        if(newSpaces[i - m - 1][m + 1] == player){
+                            chainLength++;
+                            newSpaces[i - m - 1][m + 1] = ' ';
+                        } else{
+                            break;
+                        }
+                    }
+                    if(chainLength == 2){
+                        score += 2;
+                    } else  if(chainLength == 3){
+                        score += 5;
+                    } else  if(chainLength == 4){
+                        score += 20;
+                    } else  if(chainLength == 5){
+                        score += 5000;
+                    }
+                }
+            }
+        }
+
+        //bottom half
+        for (int i = 13 ; i >= 0; i--) {
+            for (int j = 0; j <= i; j++) {
+                int k = i - j;
+                if(newSpaces[14 - j][14 - k] == player){
+                    int chainLength = 1;
+                    newSpaces[14 - j][14 - k] = ' ';
+                    for(int m = j; m < i; m++){
+                        if(newSpaces[i - m + 1][m + 3] == player){
+                            chainLength++;
+                            newSpaces[i - m + 1][m + 3] = ' ';
+                        } else{
+                            break;
+                        }
+                    }
+                    if(chainLength == 2){
+                        score += 2;
+                    } else  if(chainLength == 3){
+                        score += 5;
+                    } else  if(chainLength == 4){
+                        score += 20;
+                    } else  if(chainLength == 5){
+                        score += 5000;
+                    }
+                }
+            }
+        }
+
+        //Flip the board to calculate diagonal chains again
+        newSpaces = new char[15][15];
+        for (int k = 0; k < 15; k++) {
+            for(int m = 0; m < 15; m++){
+                newSpaces[k][14 - m] = spaces[k][m];
+            }
+        }
+
+        //top half
+        for (int i = 0; i < 15; i++) {
+            for (int j = 0; j <= i; j++) {
+                int k = i - j;
+                if(newSpaces[k][j] == player){
+                    int chainLength = 1;
+                    newSpaces[k][j] = ' ';
+                    for(int m = j; m < i; m++){
+                        if(newSpaces[i - m - 1][m + 1] == player){
+                            chainLength++;
+                            newSpaces[i - m - 1][m + 1] = ' ';
+                        } else{
+                            break;
+                        }
+                    }
+                    if(chainLength == 2){
+                        score += 2;
+                    } else  if(chainLength == 3){
+                        score += 5;
+                    } else  if(chainLength == 4){
+                        score += 20;
+                    } else  if(chainLength == 5){
+                        score += 5000;
+                    }
+                }
+            }
+        }
+
+        //bottom half
+        for (int i = 13 ; i >= 0; i--) {
+            for (int j = 0; j <= i; j++) {
+                int k = i - j;
+                if(newSpaces[14 - j][14 - k] == player){
+                    int chainLength = 1;
+                    newSpaces[14 - j][14 - k] = ' ';
+                    for(int m = j; m < i; m++){
+                        if(newSpaces[i - m + 1][m + 3] == player){
+                            chainLength++;
+                            newSpaces[i - m + 1][m + 3] = ' ';
                         } else{
                             break;
                         }
